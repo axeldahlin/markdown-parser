@@ -36,7 +36,6 @@ public class UnitTest1
         Assert.Equal(result, expectedResult);
     }
 
-
     [Fact]
     public void CanParseTextWithThreeAsteriks()
     {
@@ -56,6 +55,30 @@ public class UnitTest1
 
         // Assert
         const string expectedResult = "<p>Morbi egestas nisl non libero </p><i><b>sagittis</b></i><p>, eget consectetur diam eleifend. </p><i><b>Vivamus</b></i><p> tempus leo luctus blandit vestibulum.</p>";
+        Assert.Equal(result, expectedResult);
+    }
+
+
+    [Fact]
+    public void CanHandleHeaderLevelOne()
+    {
+        // Arrange
+        var visitor = new HtmlVisitor();
+
+        var treeToParse = new Root("");
+        var headerLevelOne = new HeaderLevelOne("");
+        headerLevelOne.SetTextContent("this is a h1");
+        treeToParse.AddChild(headerLevelOne);
+
+        // Act
+        var result = "";
+        foreach (var child in treeToParse.Children)
+        {
+            result += child.Accept(visitor);
+        }
+
+        // Assert
+        const string expectedResult = "<h1>this is a h1</h1>";
         Assert.Equal(result, expectedResult);
     }
 }

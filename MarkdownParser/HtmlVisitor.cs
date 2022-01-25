@@ -28,6 +28,12 @@ namespace dotnet_visitor
             return $"<i>{textContent}{VisitAndReturnChildred(italic)}</i>";
         }
 
+         public override string VisitHeaderLevelOne(HeaderLevelOne headerLevelOne)
+        {
+            var textContent = headerLevelOne.TextContent is not null ? headerLevelOne.TextContent : "";
+
+            return $"<h1>{textContent}</h1>";
+        }
         private string VisitAndReturnChildred(IHtmlTag tag)
         {
             var children = "";
