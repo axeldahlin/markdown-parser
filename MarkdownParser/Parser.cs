@@ -39,7 +39,7 @@ namespace dotnet_visitor
         }
 
 
-        public void Parse(string textToParse)
+        public Root Parse(string textToParse)
         {
             Result = new Root(textToParse);
             while (Result.TextToParse.Length > 0)
@@ -56,6 +56,8 @@ namespace dotnet_visitor
                     Result.SetTextToParse("");
                 }
             }
+
+            return Result;
         }
         private void AddBoldAndItalic(IHtmlTag node)
         {

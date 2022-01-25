@@ -3,12 +3,26 @@ namespace dotnet_visitor
     public class Paragraph : IHtmlTag
     {
         public List<IHtmlTag> Children { get; set; }
-        public string TextContent { get; set; }
-        public string TextToParse { get; set; }
-        public Paragraph(String textToParse)
+        public string? TextContent { get; set; }
+        public string? TextToParse { get; set; }
+        public Paragraph(string textToParse)
         {
             TextToParse = textToParse;
             Children = new List<IHtmlTag>();
+        }
+
+        public Paragraph(string textToParse, string textContent)
+        {
+            TextToParse = textToParse;
+            TextContent = textContent;
+            Children = new List<IHtmlTag>();
+        }
+
+        public Paragraph(string textToParse, string textContent, List<IHtmlTag> children)
+        {
+            TextToParse = textToParse;
+            TextContent = textContent;
+            Children = children;
         }
         public string Accept(AbstractVisitor visitor)
         {

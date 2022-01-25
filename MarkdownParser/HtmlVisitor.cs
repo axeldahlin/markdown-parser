@@ -5,35 +5,88 @@ namespace dotnet_visitor
         public string Result = "";
         public override string VisitRoot(Root root)
         {
-            return "";
+            return $"<div>{VisitAndReturnChildred(root)}</div>";
         }
         public override string VisitParagraph(Paragraph paragraph)
         {
-            var textContent = paragraph.TextContent is not null ? paragraph.TextContent : "";
-         
-            return $"<p>{textContent}{VisitAndReturnChildred(paragraph)}</p>";
+            return $"<p>{ReturnTextContentOrEmptyString(paragraph)}{VisitAndReturnChildred(paragraph)}</p>";
         }
 
         public override string VisitBold(Bold bold)
         {
-            var textContent = bold.TextContent is not null ? bold.TextContent : "";
-
-            return $"<b>{textContent}{VisitAndReturnChildred(bold)}</b>";
+            return $"<b>{ReturnTextContentOrEmptyString(bold)}{VisitAndReturnChildred(bold)}</b>";
         }
 
         public override string VisitItalic(Italic italic)
         {
-            var textContent = italic.TextContent is not null ? italic.TextContent : "";
-
-            return $"<i>{textContent}{VisitAndReturnChildred(italic)}</i>";
+            return $"<i>{ReturnTextContentOrEmptyString(italic)}{VisitAndReturnChildred(italic)}</i>";
         }
 
-         public override string VisitHeaderLevelOne(HeaderLevelOne headerLevelOne)
+        public override string VisitHeaderLevelOne(HeaderLevelOne headerLevelOne)
         {
-            var textContent = headerLevelOne.TextContent is not null ? headerLevelOne.TextContent : "";
-
-            return $"<h1>{textContent}</h1>";
+            return $"<h1>{ReturnTextContentOrEmptyString(headerLevelOne)}</h1>";
         }
+
+        public override string VisitHeaderLevelTwo(HeaderLevelTwo headerLevelTwo)
+        {
+            return $"<h2>{ReturnTextContentOrEmptyString(headerLevelTwo)}</h2>";
+        }
+
+        public override string VisitHeaderLevelThree(HeaderLevelThree headerLevelThree)
+        {
+            return $"<h3>{ReturnTextContentOrEmptyString(headerLevelThree)}</h3>";
+        }
+
+        public override string VisitHeaderLevelFour(HeaderLevelFour headerLevelFour)
+        {
+            return $"<h4>{ReturnTextContentOrEmptyString(headerLevelFour)}</h4>";
+        }
+
+        public override string VisitHeaderLevelFive(HeaderLevelFive headerLevelFive)
+        {
+            return $"<h5>{ReturnTextContentOrEmptyString(headerLevelFive)}</h5>";
+        }
+
+        public override string VisitHeaderLevelSix(HeaderLevelSix headerLevelSix)
+        {
+            return $"<h6>{ReturnTextContentOrEmptyString(headerLevelSix)}</h6>";
+        }
+
+        public override string VisitPlainText(PlainText plainText)
+        {
+            return ReturnTextContentOrEmptyString(plainText);
+        }
+
+        public override string VisitListItem(ListItem listItem)
+        {
+            return $"<li>{ReturnTextContentOrEmptyString(listItem)}</li>";
+        }
+
+        public override string VisitOrderedList(OrderedList orderedList)
+        {
+            return $"<ol>{VisitAndReturnChildred(orderedList)}</ol>";
+        }
+
+        public override string VisitUnOrderedList(UnOrderedList unorderedList)
+        {
+            return $"<ul>{VisitAndReturnChildred(unorderedList)}</ul>";
+        }
+
+        public override string VisitCodeBlock(CodeBlock codeBlock)
+        {
+            return $"<pre><code>{ReturnTextContentOrEmptyString(codeBlock)}</code><pre>";
+        }
+
+        public override string VisitInlineCode(InlineCode inlineCode)
+        {
+            return $"<code>{ReturnTextContentOrEmptyString(inlineCode)}</code>";
+        }
+
+        public override string VisitEmptyLine(EmptyLine emptyLine)
+        {
+            return $"<br></br>";
+        }
+
         private string VisitAndReturnChildred(IHtmlTag tag)
         {
             var children = "";
@@ -42,6 +95,11 @@ namespace dotnet_visitor
                 children += child.Accept(this);
             }
             return children;
+        }
+
+        private string ReturnTextContentOrEmptyString(IHtmlTag tag)
+        {
+            return tag.TextContent is not null ? tag.TextContent : "";
         }
     }
 }

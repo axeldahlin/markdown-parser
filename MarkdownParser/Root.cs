@@ -3,12 +3,21 @@ namespace dotnet_visitor
     public class Root : IHtmlTag
     {
         public List<IHtmlTag> Children { get; set; }
-        public string TextContent { get; set; }
-        public string TextToParse { get; set; }
-        public Root(String textToParse)
+        public string? TextContent { get; set; }
+        public string? TextToParse { get; set; }
+
+        public Root()
+        {
+            Children = new List<IHtmlTag>();
+        } 
+        public Root(string textToParse)
         {
             TextToParse = textToParse;
             Children = new List<IHtmlTag>();
+        }        
+        public Root(List<IHtmlTag> children)
+        {
+            Children = children;
         }
         public string Accept(AbstractVisitor visitor)
         {

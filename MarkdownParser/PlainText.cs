@@ -1,24 +1,32 @@
 namespace dotnet_visitor
 {
-    public class Italic : IHtmlTag
+    public class PlainText : IHtmlTag
     {
         public List<IHtmlTag> Children { get; set; }
         public string? TextContent { get; set; }
         public string? TextToParse { get; set; }
-        public Italic(string textContent)
+        public PlainText(string textToParse)
         {
-            TextContent = textContent;
+            TextToParse = textToParse;
             Children = new List<IHtmlTag>();
         }
-        public Italic(string textToParse, string textContent)
+
+        public PlainText(string textToParse, string textContent)
         {
             TextToParse = textToParse;
             TextContent = textContent;
             Children = new List<IHtmlTag>();
         }
+
+        public PlainText(string textToParse, string textContent, List<IHtmlTag> children)
+        {
+            TextToParse = textToParse;
+            TextContent = textContent;
+            Children = children;
+        }
         public string Accept(AbstractVisitor visitor)
         {
-            return visitor.VisitItalic(this);
+            return visitor.VisitPlainText(this);
         }
         public void AddChild(IHtmlTag child)
         {

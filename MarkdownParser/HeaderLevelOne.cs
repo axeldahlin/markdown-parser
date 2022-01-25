@@ -3,11 +3,11 @@ namespace dotnet_visitor
     public class HeaderLevelOne : IHtmlTag
     {
         public List<IHtmlTag> Children { get; set; }
-        public string TextContent { get; set; }
-        public string TextToParse { get; set; }
-        public HeaderLevelOne(String textToParse)
+        public string? TextContent { get; set; }
+        public string? TextToParse { get; set; }
+        public HeaderLevelOne(string textContent)
         {
-            TextToParse = textToParse;
+            TextContent = textContent;
             Children = new List<IHtmlTag>();
         }
         public string Accept(AbstractVisitor visitor)
