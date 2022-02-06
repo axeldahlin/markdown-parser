@@ -1,18 +1,18 @@
 namespace dotnet_visitor
 {
-    public class ListItem : IHtmlTag
+    public class UnOrderedListItem : IHtmlTag
     {
         public List<IHtmlTag> Children { get; set; }
         public string? TextContent { get; set; }
         public string? TextToParse { get; set; }
-        public ListItem(string textContent)
+        public UnOrderedListItem(string textContent)
         {
             TextContent = textContent;
             Children = new List<IHtmlTag>();
         }
         public string Accept(AbstractVisitor visitor)
         {
-            return visitor.VisitListItem(this);
+            return visitor.VisitUnOrderedListItem(this);
         }
         public void AddChild(IHtmlTag child)
         {

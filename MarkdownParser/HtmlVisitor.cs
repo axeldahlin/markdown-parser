@@ -5,7 +5,7 @@ namespace dotnet_visitor
         public string Result = "";
         public override string VisitRoot(Root root)
         {
-            return $"<div>{VisitAndReturnChildred(root)}</div>";
+           return $"<div>{VisitAndReturnChildred(root)}</div>";
         }
         public override string VisitParagraph(Paragraph paragraph)
         {
@@ -57,9 +57,14 @@ namespace dotnet_visitor
             return ReturnTextContentOrEmptyString(plainText);
         }
 
-        public override string VisitListItem(ListItem listItem)
+        public override string VisitUnOrderedListItem(UnOrderedListItem unOrderedListItem)
         {
-            return $"<li>{ReturnTextContentOrEmptyString(listItem)}</li>";
+            return $"<li>{ReturnTextContentOrEmptyString(unOrderedListItem)}</li>";
+        }
+
+        public override string VisitOrderedListItem(OrderedListItem orderedListItem)
+        {
+            return $"<li>{ReturnTextContentOrEmptyString(orderedListItem)}</li>";
         }
 
         public override string VisitOrderedList(OrderedList orderedList)

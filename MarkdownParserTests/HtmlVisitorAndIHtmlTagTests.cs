@@ -48,9 +48,9 @@ public class HtmlVisitorAndIHtmlTagTests
         var visitor = new HtmlVisitor();
         var treeToVisit = new Root();
         var orderedList = new OrderedList();
-        orderedList.AddChild(new ListItem("this is list item 1"));
-        orderedList.AddChild(new ListItem("this is list item 2"));
-        orderedList.AddChild(new ListItem("this is list item 3"));
+        orderedList.AddChild(new OrderedListItem(textContent: "this is list item 1", listNumber: 1));
+        orderedList.AddChild(new OrderedListItem(textContent: "this is list item 2", listNumber: 2));
+        orderedList.AddChild(new OrderedListItem(textContent: "this is list item 3", listNumber: 3));
         treeToVisit.AddChild(orderedList);
 
         // Act
@@ -68,9 +68,9 @@ public class HtmlVisitorAndIHtmlTagTests
          var visitor = new HtmlVisitor();
         var treeToVisit = new Root();
         var unOrderedList = new UnOrderedList();
-        unOrderedList.AddChild(new ListItem("this is list item 1"));
-        unOrderedList.AddChild(new ListItem("this is list item 2"));
-        unOrderedList.AddChild(new ListItem("this is list item 3"));
+        unOrderedList.AddChild(new UnOrderedListItem("this is list item 1"));
+        unOrderedList.AddChild(new UnOrderedListItem("this is list item 2"));
+        unOrderedList.AddChild(new UnOrderedListItem("this is list item 3"));
         treeToVisit.AddChild(unOrderedList);
 
         // Act

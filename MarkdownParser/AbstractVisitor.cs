@@ -14,7 +14,8 @@ namespace dotnet_visitor
         public abstract string VisitHeaderLevelFive(HeaderLevelFive headerLevelFive);
         public abstract string VisitHeaderLevelSix(HeaderLevelSix headerLevelSix);
         public abstract string VisitPlainText(PlainText plainText);
-        public abstract string VisitListItem(ListItem listItem);
+        public abstract string VisitUnOrderedListItem(UnOrderedListItem unOrderedListItem);
+        public abstract string VisitOrderedListItem(OrderedListItem orderedListItem);
         public abstract string VisitOrderedList(OrderedList orderedList);
         public abstract string VisitUnOrderedList(UnOrderedList unOrderedList);
         public abstract string VisitCodeBlock(CodeBlock codeBlock);

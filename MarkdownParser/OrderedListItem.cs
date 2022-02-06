@@ -1,28 +1,20 @@
 namespace dotnet_visitor
 {
-    public class UnOrderedList : IHtmlTag
+    public class OrderedListItem : IHtmlTag
     {
         public List<IHtmlTag> Children { get; set; }
         public string? TextContent { get; set; }
         public string? TextToParse { get; set; }
-
-        public UnOrderedList()
+        public int ListNumber { get; set; }
+        public OrderedListItem(string textContent, int listNumber)
         {
-            Children = new List<IHtmlTag>();
-        }
-
-        public UnOrderedList(List<IHtmlTag> children)
-        {
-            Children = children;
-        }
-        public UnOrderedList(string textToParse)
-        {
-            TextToParse = textToParse;
+            ListNumber = listNumber;
+            TextContent = textContent;
             Children = new List<IHtmlTag>();
         }
         public string Accept(AbstractVisitor visitor)
         {
-            return visitor.VisitUnOrderedList(this);
+            return visitor.VisitOrderedListItem(this);
         }
         public void AddChild(IHtmlTag child)
         {
