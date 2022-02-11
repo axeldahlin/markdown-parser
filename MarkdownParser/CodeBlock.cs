@@ -5,6 +5,10 @@ namespace dotnet_visitor
         public List<IHtmlTag> Children { get; set; }
         public string? TextContent { get; set; }
         public string? TextToParse { get; set; }
+        public CodeBlock()
+        {
+            Children = new List<IHtmlTag>();
+        }
         public CodeBlock(string textContent)
         {
             TextContent = textContent;

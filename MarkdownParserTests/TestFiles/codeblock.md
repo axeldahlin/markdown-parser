@@ -10,7 +10,7 @@
 ```
 let message = 'Hello world';
 alert(message);
-```
+
 
 ## Emphasis
 
@@ -21,7 +21,7 @@ ksjfdhsjdklsldka. alskdfjlsafdj. faskjflsda.
 *This text will be italic*  
 _This will also be italic_
 
-**This text will be bold**
+**This text will be bold**  
 __This will also be bold__
 
 _You **can** combine them_
@@ -48,7 +48,6 @@ let message = 'Hello world';
 alert(message);
 ```
 
-```
 ## Inline code
 
 This web site is using `markedjs/marked`.

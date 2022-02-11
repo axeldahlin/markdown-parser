@@ -1,20 +1,34 @@
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace dotnet_visitor
 {
     public class TopDownParser
     {
+        public TagFactory TagFactory { get; set; }
         public TopDownParser()
         {
-
+            TagFactory = new TagFactory();
         }
 
         public Root Parse(string textToParse)
         {
             var arrayOfText = textToParse.Split("\n");
             List<IHtmlTag> withFirstLayerParsed = arrayOfText.Select(text => GenerateIHtmlTagsForFirstLayer(text)).ToList();
-            List<IHtmlTag>  withOrderedListItemsInOrderedLists= PutOrderedListItemsInOrderedLists(withFirstLayerParsed);
-            List<IHtmlTag>  withUnOrderedListItemsInUnOrderedLists= PutUnOrderedListItemsInUnOrderedLists(withOrderedListItemsInOrderedLists);
+            List<IHtmlTag> withOrderedListItemsInOrderedLists = PutOrderedListItemsInOrderedLists(withFirstLayerParsed);
+            List<IHtmlTag> withUnOrderedListItemsInUnOrderedLists = PutUnOrderedListItemsInUnOrderedLists(withOrderedListItemsInOrderedLists);
+            List<IHtmlTag> withCodeBlocks = FindAndCreateCodeBlocks(withUnOrderedListItemsInUnOrderedLists);
+            List<IHtmlTag> fullyParsed = withCodeBlocks.Select(tag =>
+            {
+                if (tag.GetType().FullName == "dotnet_visitor.PlainText")
+                {
+                    return RecursivlyParsePlainTextTags(tag);
+                }
+                else
+                {
+                    return tag;
+                }
+            }).ToList();
 
 
             return new Root("");
@@ -83,11 +97,11 @@ namespace dotnet_visitor
                 {
                     var copyOfItem = htmlTags.GetRange(i, 1);
 
-                    if (foundList) 
+                    if (foundList)
                     {
                         updatedListOfHtmlTags.Last().AddChild(copyOfItem[0]);
                     }
-                    
+
                     if (!foundList)
                     {
                         updatedListOfHtmlTags.Add(new OrderedList(children: copyOfItem));
@@ -100,15 +114,14 @@ namespace dotnet_visitor
                     {
                         foundList = false;
                     }
-                } 
-                else 
+                }
+                else
                 {
                     updatedListOfHtmlTags.Add(htmlTags[i]);
-                } 
+                }
             }
             return updatedListOfHtmlTags;
         }
-
 
         private List<IHtmlTag> PutUnOrderedListItemsInUnOrderedLists(List<IHtmlTag> htmlTags)
         {
@@ -123,11 +136,11 @@ namespace dotnet_visitor
                 {
                     var copyOfItem = htmlTags.GetRange(i, 1);
 
-                    if (foundList) 
+                    if (foundList)
                     {
                         updatedListOfHtmlTags.Last().AddChild(copyOfItem[0]);
                     }
-                    
+
                     if (!foundList)
                     {
                         updatedListOfHtmlTags.Add(new UnOrderedList(children: copyOfItem));
@@ -140,16 +153,195 @@ namespace dotnet_visitor
                     {
                         foundList = false;
                     }
-                } 
-                else 
+                }
+                else
                 {
                     updatedListOfHtmlTags.Add(htmlTags[i]);
-                } 
+                }
             }
             return updatedListOfHtmlTags;
         }
 
-        // method for creating code blocks
+
+        private List<IHtmlTag> FindAndCreateCodeBlocks(List<IHtmlTag> htmlTags)
+        {
+            var foundOpeningCodeBlock = false;
+            int indexOfNewCodeBlock = 1;
+
+            List<IHtmlTag> updatedListOfHtmlTags = new List<IHtmlTag>();
+            List<IHtmlTag> listOfTagsToPutInCodeBlock = new List<IHtmlTag>();
+
+            for (int i = 0; i < htmlTags.Count(); i++)
+            {
+                var copyOfItem = htmlTags.GetRange(i, 1);
+
+                // if closing code block element is found
+                // put text of all elements in listOfTagsToPutInCodeBlock
+                // in the prevously created CodeBlock
+                if (htmlTags[i].GetType().FullName == "dotnet_visitor.PlainText"
+                && htmlTags[i].TextToParse == "```"
+                && foundOpeningCodeBlock)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    listOfTagsToPutInCodeBlock.ForEach(tag =>
+                    {
+                        if (tag.TextContent is not null) sb.AppendLine(tag.TextContent);
+                        if (tag.TextToParse is not null) sb.AppendLine(tag.TextToParse);
+                    });
+                    updatedListOfHtmlTags[indexOfNewCodeBlock].SetTextContent(sb.ToString());
+                    listOfTagsToPutInCodeBlock.Clear();
+                    foundOpeningCodeBlock = false;
+                    continue;
+                }
+
+                if (foundOpeningCodeBlock)
+                {
+                    listOfTagsToPutInCodeBlock.Add(copyOfItem[0]);
+                    continue;
+                }
+
+                if (htmlTags[i].GetType().FullName == "dotnet_visitor.PlainText"
+                && htmlTags[i].TextToParse == "```"
+                && !foundOpeningCodeBlock)
+                {
+                    updatedListOfHtmlTags.Add(new CodeBlock());
+                    foundOpeningCodeBlock = true;
+                    indexOfNewCodeBlock = updatedListOfHtmlTags.Count() - 1;
+                    continue;
+                }
+
+                if (!foundOpeningCodeBlock)
+                {
+                    updatedListOfHtmlTags.Add(copyOfItem[0]);
+                    continue;
+                }
+
+            }
+
+            // if foundOpeningCodeBlock after iteration is finished 
+            // make the created code block into a PlainText
+            // and add listOfTagsToPutInCodeBlock to updatedListOfHtmlTags
+            if (foundOpeningCodeBlock)
+            {
+                updatedListOfHtmlTags[indexOfNewCodeBlock] = new PlainText(textContent: "```", textToParse: "");
+                foreach (var item in listOfTagsToPutInCodeBlock)
+                {
+                    updatedListOfHtmlTags.Add(item);
+                }
+            }
+
+            return updatedListOfHtmlTags;
+        }
+
+
+        private IHtmlTag RecursivlyParsePlainTextTags(IHtmlTag tag)
+        {
+
+            // Bold
+            if (DoesHaveTwoAsteriks(text: tag.TextToParse))
+            {
+               return FixEverything(tag: tag, tagType: TagType.Bold, syntaxToFind: "**");
+
+
+            }
+            else if (DoesHaveOneAsteriks(text: tag.TextToParse))
+            {
+
+               return FixEverything(tag: tag, tagType: TagType.Italic, syntaxToFind: "*");
+
+                // var plainTextToReturn = new PlainText(textToParse: "");
+                // int indexOfOpening = tag.TextToParse.IndexOf("*");
+                // var textBeforeOpening = tag.TextToParse.Substring(0, indexOfOpening);
+                // var textBeforeOpeningTag = new PlainText(textContent: textBeforeOpening, textToParse: "");
+
+                // var textAfterOpening = tag.TextToParse.Substring(indexOfOpening + 1);
+
+                // var indexOfClosing = textAfterOpening.IndexOf("*");
+
+                // var toBold = textAfterOpening.Substring(0, indexOfClosing);
+
+                // var boldChild = new Bold(textContent: toBold, textToParse: "");
+
+
+                // var textContinueToParse = textAfterOpening.Substring(indexOfClosing + 1);
+
+                // var plainTextToBeParsed = RecursivlyParsePlainTextTags(new PlainText(textToParse: textContinueToParse));
+
+
+                // if (textBeforeOpeningTag.TextContent != "") { plainTextToReturn.AddChild(textBeforeOpeningTag); }
+                // plainTextToReturn.AddChild(boldChild);
+                // if (plainTextToBeParsed.TextContent != "") { plainTextToReturn.AddChild(plainTextToBeParsed); }
+
+
+                // return plainTextToReturn;
+
+            }
+            else
+            {
+                return new PlainText(textContent: tag.TextToParse, textToParse: "");
+            }
+
+
+        }
+
+        private IHtmlTag FixEverything(IHtmlTag tag, TagType tagType, string syntaxToFind)
+        {
+            int syntaxLength = syntaxToFind.Length;
+
+            var plainTextToReturn = new PlainText(textToParse: "");
+            int indexOfOpening = tag.TextToParse.IndexOf(syntaxToFind);
+            var textBeforeOpening = tag.TextToParse.Substring(0, indexOfOpening);
+            var textBeforeOpeningTag = new PlainText(textContent: textBeforeOpening, textToParse: "");
+
+            var textAfterOpening = tag.TextToParse.Substring(indexOfOpening + 2);
+
+            var indexOfClosing = textAfterOpening.IndexOf(syntaxToFind);
+
+            var syntaxToCreate =  TagFactory.GetTag(type: tagType);
+
+            var textContentOfSyntax = textAfterOpening.Substring(0, indexOfClosing);
+
+            syntaxToCreate.SetTextContent(textContentOfSyntax);
+
+           
+            var textContinueToParse = textAfterOpening.Substring(indexOfClosing + 2);
+
+            var plainTextToBeParsed = RecursivlyParsePlainTextTags(new PlainText(textToParse: textContinueToParse));
+
+            if (textBeforeOpeningTag.TextContent != "") { plainTextToReturn.AddChild(textBeforeOpeningTag); }
+            plainTextToReturn.AddChild(syntaxToCreate);
+            if (plainTextToBeParsed.TextContent != "") { plainTextToReturn.AddChild(plainTextToBeParsed); }
+
+
+            return plainTextToReturn;
+
+        }
+
+
+
+
+
+        public bool DoesHaveTwoAsteriks(string text)
+        {
+            string strRegex = @"\*{2}.*\*{2}";
+            var re = new Regex(strRegex);
+            var result = re.Match(text);
+            return result.Success;
+        }
+
+        public bool DoesHaveOneAsteriks(string text)
+        {
+            string strRegex = @"\*{1}.*\*{1}";
+            var re = new Regex(strRegex);
+            var result = re.Match(text);
+            return result.Success;
+        }
+
+
+
+
+
+
 
 
         // method for recursive parsing of the rest
